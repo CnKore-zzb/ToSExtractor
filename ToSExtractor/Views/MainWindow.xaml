@@ -1,0 +1,89 @@
+﻿<Window x:Class="ToSExtractor.Views.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="clr-namespace:ToSExtractor.ViewModels"
+		xmlns:conv="clr-namespace:ToSExtractor.Views.Converters"
+		xmlns:cc="clr-namespace:ToSExtractor.Views.CustomControls"
+		mc:Ignorable="d"
+		Title="ToSExtractor" Height="{Binding Appearance.WindowHeight,Mode=TwoWay}" Width="{Binding Appearance.WindowWidth,Mode=TwoWay}" Loaded="Window_Loaded" Closing="Window_Closing">
+	<Window.DataContext>
+		<vm:MainWindowViewModel/>
+	</Window.DataContext>
+	<Window.Resources>
+		<conv:BinaryToImgConverter x:Key="BinaryToImg"/>
+		<conv:BinaryToTextConverter x:Key="BinaryToText"/>
+		<conv:FileTypeToImageVisible x:Key="FileTypeToImageVisible" />
+		<conv:FileTypeToTextVisible x:Key="FileTypeToTextVisible" />
+		<conv:FileSizeConverter x:Key="FileSizeConverter" />
+		<Style TargetType="GridSplitter">
+			<Setter Property="Width" Value="5"></Setter>
+			<Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+		</Style>
+		<Style TargetType="TextBox">
+			<Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+		</Style>
+	</Window.Resources>
+	<Grid DataContext="{Binding IpfFile}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="180"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="240"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+		</Grid.RowDefinitions>
+		<GridSplitter Grid.Column="1" Grid.Row="1"></GridSplitter>
+		<GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"></GridSplitter>
+		<Grid Row="0" Column="0" Grid.ColumnSpan="3">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Grid Column="0" VerticalAlignment="Center">
+				<TextBlock>Directory Path:</TextBlock>
+			</Grid>
+			<Grid Column="1">
+				<TextBox Text="{Binding DirectoryPath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10,10,10,10" />
+			</Grid>
+		</Grid>
+		<Grid Row="1" Column="3"></Grid>
+		<Grid Row="0" Column="4">
+			<Button Content="ファイル出力" Width="100" Height="30" HorizontalAlignment="Right" Margin="10,10,10,10" Command="{Binding DataContext.FileOutput,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></Button>
+		</Grid>
+
+		<Grid Row="1" Column="0">
+			<ListBox ItemsSource="{Binding FileList}" SelectedItem="{Binding SelectedFileName,Mode=OneWayToSource}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<DockPanel>
+							<TextBlock Text="{Binding}" />
+						</DockPanel>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</Grid>
+		<Grid Row="1" Column="1"></Grid>
+		<Grid Row="1" Column="2">
+			<ListView ItemsSource="{Binding InnerFileList}" SelectedIndex="{Binding SelectedInnerFileIndex}">
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Text="{Binding Name}" />
+							<TextBlock Text="{Binding Size,Mode=OneWay,Converter={StaticResource FileSizeConverter}}" Margin="20,0,0,0" />
+						</StackPanel>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</Grid>
+		<Grid Row="1" Column="3"></Grid>
+		<Grid Row="1" Column="4">
+			<Image Source="{Binding InnerFileData, Mode=OneWay,Converter={StaticResource BinaryToImg}}"  Stretch="None" Visibility="{Binding InnerFileData,Mode=OneWay,Converter={StaticResource FileTypeToImageVisible}}" />
+			<cc:BindableRichTextBox Document="{Binding InnerFileData, Mode=OneWay,Converter={StaticResource BinaryToText}}" Visibility="{Binding InnerFileData,Mode=OneWay,Converter={StaticResource FileTypeToTextVisible}}"/>
+		</Grid>
+	</Grid>
+</Window>
